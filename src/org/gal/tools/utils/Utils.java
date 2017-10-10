@@ -187,7 +187,7 @@ public final class Utils {
 	}
 	
 	public static String getJIRAIssueNumber(String p_text){
-		Pattern ISSUE_PATTERN = Pattern.compile(Config.getInstance().getProperty("JIRA_issueNumberPattern", "^[A-Z]{2}-\\d+"));
+		Pattern ISSUE_PATTERN = Pattern.compile(Config.getInstance().getProperty("JIRA_issueNumberPattern", "^[A-Z]+-\\d+"));
 		Matcher l_matcher = ISSUE_PATTERN.matcher(p_text);
 		if(l_matcher.find()){
 			return l_matcher.group(0);

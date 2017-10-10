@@ -299,14 +299,22 @@ public class CVSConsoleListener implements IConsoleListener {
 	
 
 	
-	public static ArrayList<String> parseParamStrByQuotes(String str){
+	public static ArrayList<String> parseParamStrByQuotes(final String text){
 		ArrayList<String> list = new ArrayList<>();
-		str = str.replace("\"\"", QUOTE_REPLACER);
+		String str = text;
+		Pattern messagePattern = Pattern.compile("-m\\s+\"(.*)\"\\s+\\-");
+		Matcher messageMatcher = messagePattern.matcher(str);
+		
+		if(messageMatcher.find()){
+			list.add(messageMatcher.group(1));
+			str = str.substring(messageMatcher.end(1)+1, str.length());
+		}
+		
 		Pattern p = Pattern.compile("\"([^\"]*)\"");
 		Matcher m = p.matcher(str);
 		String match;
 		while (m.find()) {
-			match = m.group(1).replace(QUOTE_REPLACER, "\"");
+			match = m.group(1);
 		  list.add(match);
 		}
 		return list;
@@ -339,7 +347,7 @@ public class CVSConsoleListener implements IConsoleListener {
 	}
 	
 	public static void main(String[] args){
-		String testStr = "cvs ci -m \"KC-461: JavaScrip Error while editing table in CK editor\" -l \"/de.usu.fw.ui.smartclient.ckeditor/web/js/ckeditor/core/editor.js\" \"/de.usu.fw.ui.smartclient.ckeditor/CKeditorSetup.txt\"";
+		String testStr = "cvs ci -m \"KC-461: JavaScrip \"Error\" while editing table in CK editor\" -l \"/de.usu.fw.ui.smartclient.ckeditor/web/js/ckeditor/core/editor.js\" \"/de.usu.fw.ui.smartclient.ckeditor/CKeditorSetup.txt\"";
 		System.out.println(parseParamStrByQuotes(testStr));
 	}
 	

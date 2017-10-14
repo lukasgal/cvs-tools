@@ -118,7 +118,7 @@ public class CVSConsoleListener implements IConsoleListener {
 			return;
 		}
 		try{
-			if(exception!=null){
+			if(exception!=null || !status.isOK()){
 				removeProcessed(list);
 				Logger.addStackTrace(exception);
 				return;

@@ -79,7 +79,7 @@ public class JIRACommentCreator {
 		if(l_chs==null) return;
 		String url = m_config.getProperty("JIRA_addCommentRestUrl", null);
 		String issueNumber = Utils.getJIRAIssueNumber(l_chs.getName());
-		if(issueNumber==null || url==null){
+		if(issueNumber==null){
 			return;
 		}
 		String title = l_chs.getName();
@@ -199,35 +199,37 @@ public class JIRACommentCreator {
 		});
 		
 		p_dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		
-		p_dialog.getBtnAddComment().addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+		if(p_url!=null){	
+			p_dialog.getBtnAddComment().addActionListener(new ActionListener() {
 				
-				try {
-					JIRACommentVO comment = new JIRACommentVO();
-					comment.setCreated( new CommitDateTime(System.currentTimeMillis()));
-					comment.setIssueNumber(p_issueNumber);
-					comment.setText(p_dialog.getTxtComment().getText());
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
 					
-					JIRAResponse resp = addComment(comment.getText(), p_url.replace("${issue}", comment.getIssueNumber()));
-					
-					Integer status = resp.getHttpCode();
-					
-					if(status==HttpStatus.SC_CREATED){
-						comment.setResponseText(resp.getText());
-						JIRACommentDAOImpl.getInstance().insertComment(comment);
-						JOptionPane.showMessageDialog(null, "Comment has been created.");
+					try {
+						JIRACommentVO comment = new JIRACommentVO();
+						comment.setCreated( new CommitDateTime(System.currentTimeMillis()));
+						comment.setIssueNumber(p_issueNumber);
+						comment.setText(p_dialog.getTxtComment().getText());
+						
+						JIRAResponse resp = addComment(comment.getText(), p_url.replace("${issue}", comment.getIssueNumber()));
+						
+						Integer status = resp.getHttpCode();
+						
+						if(status==HttpStatus.SC_CREATED){
+							comment.setResponseText(resp.getText());
+							JIRACommentDAOImpl.getInstance().insertComment(comment);
+							JOptionPane.showMessageDialog(null, "Comment has been created.");
+						}
+						p_dialog.dispose();
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+							| SecurityException | IOException | ParseException e) {
+						Logger.addStackTrace(e);
 					}
-					p_dialog.dispose();
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-						| SecurityException | IOException | ParseException e) {
-					Logger.addStackTrace(e);
 				}
-			}
-		});
-		
+			});
+		}else{
+			p_dialog.getBtnAddComment().setEnabled(false);
+		}
 		p_dialog.getBtnCancel().addActionListener(new ActionListener() {
 			
 			@Override

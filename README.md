@@ -47,6 +47,9 @@ JIRA_issueNumberPattern = ^[A-Z]+-\d+
 #if it's set, to the list of resources in JIRA comment is added before a filename type of operation I -inserted, U-updated, D-deleted
 addOperationTypeToResource=true
 
+#limit of number of returned changesets
+changeSetsLimit=100000
+
 ```
 
 ![Main window](https://github.com/lukasgal/cvs-tools/blob/master/docs/images/mainWindow.png)

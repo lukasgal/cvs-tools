@@ -21,9 +21,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.gal.tools.cvs.gui.CVSHistoryWindow;
 import org.gal.tools.cvs.gui.actions.ExpandCollapseTreeAction;
 import org.gal.tools.cvs.gui.actions.RefreshHistoryTree;
+import org.gal.tools.cvs.gui.actions.SearchRegexpAction;
 import org.gal.tools.cvs.gui.actions.SetTreeModel;
 import org.gal.tools.cvs.gui.actions.ShowOnlyCurrentWSAction;
 import org.gal.tools.cvs.gui.actions.ShowResourcesAsListAction;
+import org.gal.tools.cvs.gui.actions.UseDateChange;
 import org.gal.tools.cvs.gui.listeners.HistoryTreeKeyListener;
 import org.gal.tools.cvs.gui.listeners.HistoryTreeMouseListener;
 import org.gal.tools.cvs.gui.listeners.TxtSearchKeyListener;
@@ -77,13 +79,15 @@ public class CVSHistoryController extends Observable implements AbstractControll
 	
 	private boolean filterByDate = true;
 	
+	private boolean filterByRegexp = false;
+	
 	public CVSHistoryController(WorkspaceVO ws){
 		DBUtils.updateDatabaseSchema();
 		workspace = ws;
 		this.window = new CVSHistoryWindow();
 		currentTreeModel = HistoryTreeModel.WC_MODEL;
-		initWindow();
 		chsDao = new ChangeSetDAOImpl();
+		initWindow();
 		filterTree();
 	}
 	
@@ -205,10 +209,15 @@ public class CVSHistoryController extends Observable implements AbstractControll
 	public CVSHistoryWindow getWindow(){
 		return this.window;
 	}
+	
+	public String getSearchText(){
+		return window.getSearch().getText();
+	}
+	
 	public void filterTree(){
 		JTextField field = window.getSearch();
 		
-    	String text = field.getText();
+    	String text = getSearchText();
     	
 		if(text.trim().isEmpty()){
 			fetch();
@@ -239,13 +248,21 @@ public class CVSHistoryController extends Observable implements AbstractControll
 	public boolean isFilterByDate() {
 		return filterByDate;
 	}
+	
+	public void setUseDateRange(boolean use){
+		window.getChbUseDateRange().setSelected(use);
+	}
 
 	public void setFilterByDate(boolean filterByDate) {
 		this.filterByDate = filterByDate;
 	}
 
 	public boolean isfilterByRegexp(){
-		return window.getChbRegexp().isSelected();
+		return filterByRegexp;
+	}
+	
+	public void setfilterByRegexp(boolean p_filterByRegexp){
+		this.filterByRegexp = p_filterByRegexp;
 	}
 	
 	private void initWindow(){
@@ -342,7 +359,10 @@ public class CVSHistoryController extends Observable implements AbstractControll
 		window.setLocation(new Point(0,0));
 		window.setSize(700, Utils.getScreenSize().height-50);
 		window.setTitle("CVS Commits history "+ (workspace!=null ? workspace.getName() : ""));
-		
+	
+		window.getChbRegexp().addActionListener(new SearchRegexpAction(this));
+		window.getChbUseDateRange().addChangeListener(new UseDateChange(this));
+		window.getChbUseDateRange().setSelected(filterByDate);
 	}
 	
 	public void showWindow(){
@@ -363,11 +383,11 @@ public class CVSHistoryController extends Observable implements AbstractControll
 		this.limitRecords = limitRecords;
 	}
 	
-	public void setVisibleDateRange(boolean show){
-		window.getSpShowFrom().setVisible(show);
-		window.getSpShowTo().setVisible(show);
-		window.getLblFrom().setVisible(show);
-		window.getLblTo().setVisible(show);
+	public void setEnabledDateRange(boolean show){
+		window.getSpShowFrom().setEnabled(show);
+		window.getSpShowTo().setEnabled(show);
+		window.getLblFrom().setEnabled(show);
+		window.getLblTo().setEnabled(show);
 	}
 	
 	public void setVisibleLimit(boolean show){
@@ -458,4 +478,5 @@ public class CVSHistoryController extends Observable implements AbstractControll
 		}
 		refresh();
 	}
+	
 }

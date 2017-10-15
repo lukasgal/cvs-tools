@@ -31,6 +31,7 @@ public class TxtSearchKeyListener implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			controller.filterTree();
 		} else {
@@ -38,7 +39,7 @@ public class TxtSearchKeyListener implements KeyListener {
 				JTextField field = ((JTextField) e.getSource());
 				if (field.getBackground() == Color.red) {
 					field.setBackground(Color.white);
-				}	
+				}
 			}
 		}
 	}

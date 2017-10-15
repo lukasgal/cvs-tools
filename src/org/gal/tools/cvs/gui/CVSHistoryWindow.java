@@ -67,6 +67,7 @@ public class CVSHistoryWindow extends javax.swing.JFrame {
         spShowFrom = new javax.swing.JSpinner();
         lblTo = new javax.swing.JLabel();
         spShowTo = new javax.swing.JSpinner();
+        chbUseDateRange = new javax.swing.JCheckBox();
         lbNumbuerRows = new javax.swing.JLabel();
         spLimit = new javax.swing.JSpinner();
         jSeparator4 = new javax.swing.JToolBar.Separator();
@@ -177,6 +178,11 @@ public class CVSHistoryWindow extends javax.swing.JFrame {
         spShowTo.setEditor(new javax.swing.JSpinner.DateEditor(spShowTo, "dd/MM/yyyy"));
         spShowTo.setMaximumSize(new java.awt.Dimension(80, 32767));
         toolbarSearch.add(spShowTo);
+
+        chbUseDateRange.setToolTipText("Use date range");
+        chbUseDateRange.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        chbUseDateRange.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        toolbarSearch.add(chbUseDateRange);
 
         lbNumbuerRows.setText(" Limit ");
         toolbarSearch.add(lbNumbuerRows);
@@ -290,6 +296,7 @@ public class CVSHistoryWindow extends javax.swing.JFrame {
     
     private javax.swing.JToggleButton btnWDCModelView;
     private javax.swing.JCheckBox chbRegexp;
+    private javax.swing.JCheckBox chbUseDateRange;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar.Separator jSeparator1;
@@ -364,6 +371,9 @@ public class CVSHistoryWindow extends javax.swing.JFrame {
 	public javax.swing.JCheckBox getChbRegexp() {
 		return chbRegexp;
 	}
-    
+
+	public javax.swing.JCheckBox getChbUseDateRange() {
+		return chbUseDateRange;
+	}
 	
 }

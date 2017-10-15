@@ -16,17 +16,8 @@ public class SetTreeModel implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(HistoryTreeModel.J_MODEL.equals(e.getActionCommand())){
-			controller.setFilterByDate(false);
-			controller.setVisibleDateRange(false);
-			//controller.setVisibleLimit(true);			
-			//controller.getWindow().getSpLimit().setValue(50);
-		}else{
-			controller.setFilterByDate(true);
-			controller.setVisibleDateRange(true);
-			//controller.setVisibleLimit(false);		
-			//controller.getWindow().getSpLimit().setValue(CVSHistoryController.DEFAULT_REC_LIMIT);
-		}
+		boolean use = !HistoryTreeModel.J_MODEL.equals(e.getActionCommand());
+		controller.setUseDateRange(use);
 		controller.setTreeModel(e.getActionCommand());
 		controller.refresh();
 	}

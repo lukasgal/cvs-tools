@@ -239,6 +239,13 @@
                 </Property>
               </Properties>
             </Component>
+            <Component class="javax.swing.JCheckBox" name="chbUseDateRange">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" value="Use date range"/>
+                <Property name="horizontalTextPosition" type="int" value="0"/>
+                <Property name="verticalTextPosition" type="int" value="3"/>
+              </Properties>
+            </Component>
             <Component class="javax.swing.JLabel" name="lbNumbuerRows">
               <Properties>
                 <Property name="text" type="java.lang.String" value=" Limit "/>

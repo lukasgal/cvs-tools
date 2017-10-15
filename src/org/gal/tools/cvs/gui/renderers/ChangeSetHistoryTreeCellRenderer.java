@@ -27,12 +27,14 @@ public class ChangeSetHistoryTreeCellRenderer extends DefaultTreeCellRenderer {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private CVSHistoryController controller;
 	
 	private String highlightTerm;
 	
 	private boolean m_useRegexp = false;
 	
-	public ChangeSetHistoryTreeCellRenderer(){
+	public ChangeSetHistoryTreeCellRenderer(CVSHistoryController controller){
+		this.controller = controller;
 	}
 	
 	
@@ -62,8 +64,6 @@ public class ChangeSetHistoryTreeCellRenderer extends DefaultTreeCellRenderer {
 			}
 			
 			
-			
-			
 			if(!model.equals(HistoryTreeModel.WC_MODEL) && !model.equals(HistoryTreeModel.J_MODEL)){
 				template +="&nbsp;&nbsp;<span style='color:#5F4C0B;margin-left:8px'>["+ch.getWorkspace().getName()+"]</span>";	
 			}
@@ -91,9 +91,13 @@ public class ChangeSetHistoryTreeCellRenderer extends DefaultTreeCellRenderer {
 			text = ch.getName();
 			template = "<html><span style='font-family:arial;font-weight:bold;font-size:13pt;'>${text}</span></html>";
 			ImageIcon icon = Icons.WORKSPACE_ICON;
-			if(CVSHistoryController.getCurrentWorkspace()!=null && ch.getId()==CVSHistoryController.getCurrentWorkspace().getId()){
+			Integer currentWSID = (CVSHistoryController.getCurrentWorkspace()!=null) ?CVSHistoryController.getCurrentWorkspace().getId() : null;
+			if(ch.getId().equals(currentWSID)){
 				icon = Icons.CURRENT_WORKSPACE_ICON;
+			}else if(controller.getFocusedWorkspaceId()!=null && !ch.getId().equals(currentWSID)){
+				icon = Icons.WORKSPACE_FOCUSED;
 			}
+				
 			setIcon(icon);	
 			
 		}

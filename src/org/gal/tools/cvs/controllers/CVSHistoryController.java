@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,8 +53,6 @@ import org.gal.tools.utils.WorkspaceUtils;
 public class CVSHistoryController extends Observable implements AbstractController{
 
 	public static final String ID = "cvshistory";
-
-	private Config m_config;
 	
 	private List<AbstractTreeNode> records;
 	
@@ -80,6 +79,8 @@ public class CVSHistoryController extends Observable implements AbstractControll
 	private boolean filterByDate = true;
 	
 	private boolean filterByRegexp = false;
+
+	private Integer focusedWorkspaceId = null;
 	
 	public CVSHistoryController(WorkspaceVO ws){
 		DBUtils.updateDatabaseSchema();
@@ -87,9 +88,26 @@ public class CVSHistoryController extends Observable implements AbstractControll
 		this.window = new CVSHistoryWindow();
 		currentTreeModel = HistoryTreeModel.WC_MODEL;
 		chsDao = new ChangeSetDAOImpl();
+		initConfig();
 		initWindow();
+		setShowOnlyCurrentWS(workspace!=null);
 		filterTree();
 	}
+	
+	private void initConfig(){
+		Integer configLimit;
+		try{
+			configLimit = Integer.parseInt(Config.getInstance().getProperty("changeSetsLimit", "-1"));	
+		}catch(NumberFormatException ex){
+			configLimit = DEFAULT_REC_LIMIT;
+		}
+		
+		if(configLimit > 0){
+			limitRecords = configLimit;	
+		}
+		
+	}
+	
 	
 	public void refresh(){
 		records.clear();
@@ -104,9 +122,8 @@ public class CVSHistoryController extends Observable implements AbstractControll
 	public void fetch(){
 		
 		Integer wsId = null;
-		if(showOnlyCurrenWS && workspace!=null){
-			wsId = workspace.getId();
-		}
+		wsId = getFocusedWorkspaceId();
+		
 		records = chsDao.getAllChangeSets(wsId, getLimitRecords(), getDateFrom(), getDateTo());
 		filtered = false;
 		filterText = null;
@@ -116,9 +133,7 @@ public class CVSHistoryController extends Observable implements AbstractControll
 
 		filterText = str;
 		Integer wsId = null;
-		if(showOnlyCurrenWS && workspace!=null){
-			wsId = workspace.getId();
-		}
+		wsId = getFocusedWorkspaceId();
 		records = chsDao.filterByName(str, str, wsId, getDateFrom(), getDateTo(), useRegexp);
 		filtered = true;
 	}
@@ -141,6 +156,11 @@ public class CVSHistoryController extends Observable implements AbstractControll
 		return lastTreeState;
 	}
 
+	public void showMessage(String message){
+		JOptionPane.showMessageDialog(window, message);
+	}
+
+	
 	public void setLastTreeState(JTree tree) {
 		this.lastTreeState = Utils.getExpansionState(tree);
 	}
@@ -156,10 +176,14 @@ public class CVSHistoryController extends Observable implements AbstractControll
 
 	public void setShowOnlyCurrentWS(boolean show){
 		this.showOnlyCurrenWS = show;
+		Integer wsId = null;
+		if(workspace!=null && show){
+			wsId = workspace.getId();
+		}
+		setFocusedWorkspaceId(wsId);
 	}
 	
 	public boolean showOnlyCurrentWS() {
-		
 		return showOnlyCurrenWS;
 	}
 	
@@ -182,6 +206,27 @@ public class CVSHistoryController extends Observable implements AbstractControll
 		if(obj instanceof ResourceVO){
 			WorkspaceUtils.openFile(((ResourceVO) obj).getRelativePath());
 		}	
+	}
+	
+	public void showOnlySelectedWorkspace(JTree tree){
+		Object obj = tree.getLastSelectedPathComponent();
+		
+		if(obj instanceof WorkspaceVO){
+			Integer wsId = ((WorkspaceVO) obj).getId();
+			if(showOnlyCurrenWS) return;
+			setFocusedWorkspaceId(wsId);
+			filterTree();
+		}else{
+			showMessage("You have to select a workspace node.");
+		}
+		
+	}
+	
+	public void showAllOrCurrentWorkspace(JTree source) {
+		Integer wsId = null;
+		if(focusedWorkspaceId==null) return;
+		setFocusedWorkspaceId(wsId);
+		filterTree();
 	}
 	
 	public void setTreeModel(String model){
@@ -242,7 +287,7 @@ public class CVSHistoryController extends Observable implements AbstractControll
     }
 	
 	private int getLimit(){
-		return (Integer)window.getSpLimit().getValue();
+		return limitRecords;
 	}
 	
 	public boolean isFilterByDate() {
@@ -263,11 +308,19 @@ public class CVSHistoryController extends Observable implements AbstractControll
 	
 	public void setfilterByRegexp(boolean p_filterByRegexp){
 		this.filterByRegexp = p_filterByRegexp;
-	}
+	}	
 	
+	public Integer getFocusedWorkspaceId() {
+		return focusedWorkspaceId;
+	}
+
+	public void setFocusedWorkspaceId(Integer focusedWorkspaceId) {
+		this.focusedWorkspaceId = focusedWorkspaceId;
+	}
+
 	private void initWindow(){
 		ExpandCollapseTreeAction expandCollapseAction = new ExpandCollapseTreeAction(window.getTree());
-		DefaultTreeCellRenderer l_treeRenderer = new ChangeSetHistoryTreeCellRenderer();
+		DefaultTreeCellRenderer l_treeRenderer = new ChangeSetHistoryTreeCellRenderer(this);
 		window.getTree().setCellRenderer(l_treeRenderer);
 		window.getTree().setRowHeight(17);
 		window.getTree().expandRow(0);
@@ -436,20 +489,80 @@ public class CVSHistoryController extends Observable implements AbstractControll
 		};
 	}
 	
+	private ActionListener getRefreshAction(){
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				refresh();
+			}
+		};
+	}
+	
+	private ActionListener getFocusWorkspaceAction(){
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				showOnlySelectedWorkspace(window.getTree());
+			}
+		};
+	}
+	
+	private ActionListener getShowAllWorkspacesAction(){
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				showAllOrCurrentWorkspace(window.getTree());
+			}
+		};
+	}
+	
+	private ActionListener getReloadAction(){
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				reloadConfig();
+			}
+		};
+	}
+	
+	public void reloadConfig(){
+		Config.getInstance().load();
+		initConfig();
+		refresh();
+	}
+	private boolean canShowEdit(){
+		return window.getTree().getLastSelectedPathComponent() instanceof WorkspaceVO;
+	}
 	
 	private JPopupMenu getTreePopUpMenu() {
 	    JPopupMenu menu = new JPopupMenu();
 	    
-	    JMenuItem item = new JMenuItem("<html>Edit <span style='color:silver;'>(F6)</span></html>");
-	   
+	    JMenuItem item = new JMenuItem("<html>Add JIRA comment <span style='color:silver;'>(F3)</span></html>");
+	    item.addActionListener(getAddCommentAction());
+	    menu.add(item);
+	    
+	    item = new JMenuItem("<html>Edit <span style='color:silver;'>(F6)</span></html>");
+	    //item.setVisible(canShowEdit());
 	    item.addActionListener(getEditWSNameAction());
+	    item.setMnemonic(KeyEvent.VK_F6);
+	    menu.add(item);
+	    
+	    item = new JMenuItem("<html>Refresh tree <span style='color:silver;'>(F5)</span></html>");
+	    item.addActionListener(getRefreshAction());
 	    menu.add(item);
 
-	    JMenuItem item2 = new JMenuItem("<html>Add JIRA comment <span style='color:silver;'>(F3)</span></html>");
-	   
-	    item2.addActionListener(getAddCommentAction());
-	    menu.add(item2);	
-
+	    item = new JMenuItem("<html>Show only selected workspace <span style='color:silver;'>(Alt+Right)</span></html>");
+	    item.addActionListener(getFocusWorkspaceAction());
+	    menu.add(item);
+	    
+	    item = new JMenuItem("<html>Show all workspaces <span style='color:silver;'>(Alt+Left)</span></html>");
+	    item.addActionListener(getShowAllWorkspacesAction());
+	    menu.add(item);
+	    
+	    item = new JMenuItem("<html>Reload config <span style='color:silver;'>(F11)</span></html>");
+	    item.addActionListener(getReloadAction());
+	    menu.add(item);
+	    
 	    return menu;
 	}
 	
@@ -477,6 +590,5 @@ public class CVSHistoryController extends Observable implements AbstractControll
 			window.requestFocus();	
 		}
 		refresh();
-	}
-	
+	}	
 }

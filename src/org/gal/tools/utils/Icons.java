@@ -32,6 +32,7 @@ public final class Icons {
 	public static ImageIcon CLOSE_PROJECT_ICON = icon("project_close.gif");
 	public static ImageIcon OPEN_PROJECT_ICON = icon("project_open.gif");
 	public static ImageIcon JIRA_ICON = icon("jira.gif");
+	public static ImageIcon WORKSPACE_FOCUSED = icon("workspaceFocused.png");	
 	
 	private static ImageIcon icon(String name){
 		try{

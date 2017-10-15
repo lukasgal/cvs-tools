@@ -52,9 +52,20 @@ public class HistoryTreeKeyListener implements KeyListener{
 		}
 		
 		if(e.getKeyCode()==KeyEvent.VK_F11){
-			Config.getInstance().load();
-			controller.refresh();
+			controller.reloadConfig();
 		}
+		if(e.getKeyCode()==KeyEvent.VK_RIGHT && e.isAltDown()){
+			if(e.getSource() instanceof JTree){
+				controller.showOnlySelectedWorkspace((JTree)e.getSource());
+			}
+		}
+		
+		if(e.getKeyCode()==KeyEvent.VK_LEFT && e.isAltDown()){
+			if(e.getSource() instanceof JTree){
+				controller.showAllOrCurrentWorkspace((JTree)e.getSource());
+			}
+		}
+		
 	}
 
 }

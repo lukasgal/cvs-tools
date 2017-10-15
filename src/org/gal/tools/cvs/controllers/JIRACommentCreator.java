@@ -152,8 +152,6 @@ public class JIRACommentCreator {
              response.append(inputLine);
          }
          in.close();
-
-         //String result = response.toString();
          
          return new JIRAResponse(response.toString(), responseCode);
 	}

@@ -54,7 +54,7 @@ changeSetsLimit=100000
 
 ![Main window](https://github.com/lukasgal/cvs-tools/blob/master/docs/images/mainWindow.png)
 
-Latest build : [org.gal.tools_1.0.0.201710160603.jar](cvs-tools/builds/plugins/org.gal.tools_1.0.0.201710160603.jar)
+Latest build : [org.gal.tools_1.0.0.201710160603.jar](https://github.com/lukasgal/cvs-tools/raw/master/builds/plugins/org.gal.tools_1.0.0.201710160603.jar)
 
 ## Installation notes:
 1. copy the jar file into folder eclipse/plugins/

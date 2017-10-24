@@ -1,6 +1,6 @@
 # cvs-tools
 
-CVS Tools is Eclipse plugin which allows to keep records about commits into CVS. It could be used as overview of your work. You can search in your commit's history as in cvs plugin, but cvs search is focused only to resource, not to whole change set. The records are stored in local SQLite database. When a file or change set is commited, it's able to be send directly a comment contained the changes into JIRA task. When you use more than one workspace with same Eclipse installation, you are able to view changes from another workspace. This tool also allows to search in your changes through of all workspaces. 
+CVS Tools is Eclipse plugin which allows to keep records about commits into CVS. It could be used as overview of your work. You can search in your commit's history as in cvs plugin, but cvs search is focused only to resource, not to whole change set. The records are stored in local SQLite database. When a file or change set is commited, it's able to be sent directly a comment contained the changes into JIRA task. When you use more than one workspace with same Eclipse installation, you are able to display changes from another workspace. This tool also allows to search in your changes through of all workspaces.
 
 This tool was developed only for my personal needs. I use it in my job every day.
 
@@ -54,3 +54,8 @@ changeSetsLimit=100000
 
 ![Main window](https://github.com/lukasgal/cvs-tools/blob/master/docs/images/mainWindow.png)
 
+Latest build : [org.gal.tools_1.0.0.201710160603.jar](cvs-tools/builds/plugins/org.gal.tools_1.0.0.201710160603.jar)
+
+## Installation notes:
+1. copy the jar file into folder eclipse/plugins/
+1. restart eclipse
